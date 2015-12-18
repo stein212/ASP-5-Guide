@@ -1,0 +1,59 @@
+﻿@using System.Diagnostics
+@using StudentManagementSystem.ViewModels.Student
+@model List<StudentViewModel>
+
+<style>
+    .content {
+        margin-top: 10px;
+    }
+
+    .highlight {
+        background-color: yellow;
+    }
+</style>
+<div class="content">
+    <div id="divMessage" class="text-danger">@ViewData["divMessage"]</div>
+    <form class="form-inline" asp-controller="Student" asp-action="Index" method="POST">
+        <div class="form-group">
+            <label for="search">Search:</label>
+            <input id="search" name="search" class="form-control" type="text" placeholder="Search" />
+            <button class="btn btn-default" type="submit">Search</button>
+        </div>
+    </form>
+ 
+    <table id="students" class="table">
+        <caption>Students</caption>
+        <thead>
+            <tr>
+                <th>Full name</th>
+                <th>Email</th>
+                <th>Mobile contact</th>
+                <th>Date of birth</th>
+                <th>Course</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (StudentViewModel studentVM in Model)
+            {
+                <tr>
+                    <td>@studentVM.FullName</td>
+                    <td>@studentVM.Email</td>
+                    <td>@studentVM.MobileContact</td>
+                    <td>@studentVM.DateOfBirth.ToString("dd-MMM-yyyy")</td>
+                    <td>@studentVM.CourseAbbreviation</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section scripts {
+    <script>
+        $("#students > tbody > tr").each(function(i) {
+            var dob = this.cells[3].innerHTML;
+            var year = +dob.split("-")[2]; //OR parseInt(dob.split("-")[2])
+            console.log(year);
+            if (year == 1999) $(this).addClass("highlight");
+        });
+    </script>
+}

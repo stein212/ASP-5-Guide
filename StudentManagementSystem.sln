@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D4EFFD8A-2365-4DCB-A2BE-89051D054E9B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{96C8D476-7026-460B-96F0-64CCDA7DAF9F}"
+	ProjectSection(SolutionItems) = preProject
+		global.json = global.json
+	EndProjectSection
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "StudentManagementSystem", "src\StudentManagementSystem\StudentManagementSystem.xproj", "{196F9C83-C63F-4EFB-BED4-654B9227984C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{196F9C83-C63F-4EFB-BED4-654B9227984C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{196F9C83-C63F-4EFB-BED4-654B9227984C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{196F9C83-C63F-4EFB-BED4-654B9227984C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{196F9C83-C63F-4EFB-BED4-654B9227984C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{196F9C83-C63F-4EFB-BED4-654B9227984C} = {D4EFFD8A-2365-4DCB-A2BE-89051D054E9B}
+	EndGlobalSection
+EndGlobal
