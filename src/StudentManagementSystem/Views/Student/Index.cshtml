@@ -2,14 +2,12 @@
 @using StudentManagementSystem.ViewModels.Student
 @model List<StudentViewModel>
 
-<style>
-    .content {
-        margin-top: 10px;
-    }
+@{
+    ViewBag.Title = "Students";
+}
 
-    .highlight {
-        background-color: yellow;
-    }
+<style>
+    
 </style>
 <div class="content">
     <div id="divMessage" class="text-danger">@ViewData["divMessage"]</div>

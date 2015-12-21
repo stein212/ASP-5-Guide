@@ -29,7 +29,7 @@ namespace StudentManagementSystem.Controllers
             {
                 List<Student> students = new StudentContext(_options.Value.ConnectionString).GetStudents();
                 List<Course> courses = new CourseContext(_options.Value.ConnectionString).GetCourses();
-                studentVMs = JoinStudentsAndCourses(students, courses);
+                studentVMs = StudentViewModel.JoinStudentsAndCourses(students, courses);
             }
             catch (Exception e)
             {
@@ -56,31 +56,6 @@ namespace StudentManagementSystem.Controllers
             }
 
             return View();
-        }
-
-        private List<StudentViewModel> JoinStudentsAndCourses(List<Student> students, List<Course> courses)
-        {
-            List<StudentViewModel> studentVMs = students.AsEnumerable().Join(
-                courses,
-                (student) => student.CourseId,
-                (course) => course.CourseId,
-                (student, course) =>
-                {
-                    StudentViewModel studentVM = new StudentViewModel()
-                    {
-                        StudentId = student.StudentId,
-                        FullName = student.FullName,
-                        DateOfBirth = student.DateOfBirth,
-                        Email = student.Email,
-                        MobileContact = student.MobileContact,
-                        CourseId = student.CourseId,
-                        CourseAbbreviation = course.CourseAbbreviation,
-                    };
-                    return studentVM;
-                }
-            ).ToList();
-
-            return studentVMs;
         }
 
         [HttpGet]
