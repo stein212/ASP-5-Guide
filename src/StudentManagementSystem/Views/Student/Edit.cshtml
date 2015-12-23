@@ -1,0 +1,121 @@
+﻿@using StudentManagementSystem.Models
+@model Student
+
+<div id="message" class="text-danger">@ViewData["divMessage"]</div>
+<form asp-action="Edit" asp-antiforgery="true" asp-controller="Student" method="PUT">
+    <div asp-validation-summary="ValidationSummary.All"></div>
+
+    <div class="form-group">
+        <label asp-for="FullName"></label>
+        <input type="text" asp-for="FullName" class="form-control" />
+        <span asp-validation-for="FullName"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="DateOfBirth"></label>
+        <input type="date" asp-for="DateOfBirth" value="@Model.DateOfBirth.ToString("yyyy-MM-dd")" class="form-control" />
+        <span asp-validation-for="DateOfBirth"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <input type="email" asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="MobileContact"></label>
+        <input type="text" asp-for="MobileContact" class="form-control" />
+        <span asp-validation-for="MobileContact"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="CourseId"></label>
+        @*<select asp-for="CourseId" asp-items="@(new SelectList((List<Course>)ViewData["courses"], "CourseId", "CourseName"))" class="form-control">
+            <option value="0">Select a course</option>
+        </select>*@
+        <select class="form-control" asp-for="CourseId">
+            <option value="0">Select a course</option>
+        </select>
+        <span asp-validation-for="CourseId"></span>
+    </div>
+    <button class="btn btn-success">Submit</button>
+</form>
+
+@section scripts {
+    <script>
+        //Get studentId from url
+        let urlArray = window.location.href.split('/');
+        let studentId = +urlArray[urlArray.length - 1];
+
+        //Wire up the form's on submit
+        let $form = $('form');
+        $form.submit((e) => {
+            e.preventDefault();
+
+            let student = {};
+            student.StudentId = studentId;
+            let formData = $form.serializeArray();
+            for (var i = 0; i < formData.length; i++) {
+                student[formData[i].name] = formData[i].value;
+            }
+
+            console.log(student, studentId);
+
+            $.ajax({
+                method: 'PUT',
+                url: '/api/Student/',
+                contentType: 'application/json',
+                data: JSON.stringify(student),
+            }).done((data) => {
+                if (data.Success) {
+                    window.location.href = '/Student';
+                } else {
+                    $('#message').html('Failed to update ' + student.FullName + '. Reason: ' + data.Message);
+                }
+            });
+        })
+
+        //populate the inputs
+        loadStudentData()
+
+        function loadStudentData() {
+            $.when(
+                $.ajax({
+                    method: 'GET',
+                    url: '/api/Student/' + studentId,
+                    dataType: 'json',
+                    cache: false
+                }),
+                $.ajax({
+                    method: 'GET',
+                    url: '/api/Course',
+                    dataType: 'json',
+                    cache: false
+                })
+            ).done((studentData, CourseData) => {
+                let student = studentData[0],
+                    courses = CourseData[0];
+
+                console.log(student, courses);
+
+                //populate course dropdown list
+                for (var i = 0; i < courses.length; i++) {
+                    let $option = $('<option value="' + courses[i].CourseId + '"></option');
+                    $option.text(courses[i].CourseName);
+                    $('#CourseId').append($option);
+                }
+
+                //format student's dob
+                let d = new Date(student.DateOfBirth);
+                let date = ("0" + d.getDate()).slice(-2);
+                let month = ("0" + (d.getMonth() + 1)).slice(-2);
+                let year = d.getFullYear();
+                student.DateOfBirth = year + '-' + month + '-' + date;
+
+                //populate student fields
+                $('#FullName').val(student.FullName);
+                $('#DateOfBirth').val(student.DateOfBirth);
+                $('#Email').val(student.Email);
+                $('#MobileContact').val(student.MobileContact);
+                $('#CourseId').val(student.CourseId);
+            });
+        }
+    </script>
+}

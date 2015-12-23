@@ -76,7 +76,7 @@ namespace StudentManagementSystem.Controllers
             StudentContext context = new StudentContext(_options.Value.ConnectionString);
             bool success = false;
             try {
-                success = context.addStudent(student);
+                success = context.AddStudent(student);
             }
             catch (Exception e)
             {
@@ -88,5 +88,71 @@ namespace StudentManagementSystem.Controllers
                 ViewData["divMessage"] = "Failed to add " + student.FullName + ". Reason: " + messageToUser;
             return View();
         }
+
+        [HttpGet]
+        public IActionResult Edit(int id)
+        {
+            //ViewData["courses"] = new CourseContext(_options.Value.ConnectionString).GetCourses();
+            //ViewData["divMessage"] = "Received record id: " + id;
+            //Student student = new StudentContext(_options.Value.ConnectionString).GetStudent(id);
+            //return View(student);
+            return View(new Student());
+        }
+
+        [HttpPut]
+        public IActionResult Edit(Student student)
+        {
+            ViewData["courses"] = new CourseContext(_options.Value.ConnectionString).GetCourses();
+            bool success = false;
+            string exceptionMessage = "";
+            try
+            {
+                success = new StudentContext(_options.Value.ConnectionString).UpdateStudent(student);
+            }
+            catch (Exception e)
+            {
+                exceptionMessage = e.Message;
+            }
+            if (success)
+            {
+                //If update is successful, redirect the user to the Index page
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                ViewData["divMessage"] = "Record is not successfully saved. Reason: " + exceptionMessage;
+                return View(student);
+            }
+        }
+
+        [HttpDelete]
+        public IActionResult Delete(int[] checkedId)
+        {
+            StudentContext sc = new StudentContext(_options.Value.ConnectionString);
+            bool success = false;
+            int deleteCount = 0;
+            foreach (int id in checkedId)
+            {
+                success = sc.DeleteStudent(id);
+                if (success)
+                {
+                    deleteCount++;
+                    continue;
+                }
+                else
+                    break;
+            }
+            /*ViewData cannot be transfered through a redirect, so we can use TempData, but we have to configure the session middleware in Startup.cs.
+            You are always welcomed to find out more on using sessions*/
+
+            /*
+            if (success)
+                TempData["divMessage"] = "Successfully deleted " + deleteCount + " record(s).";
+            else
+                TempData["divMessage"] = "Failed to delete some record(s). Please contact the administrator if the problem persists.";
+            */
+            return RedirectToAction("Index");
+        }
+
     }
 }

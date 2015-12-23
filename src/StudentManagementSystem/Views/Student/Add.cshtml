@@ -35,3 +35,37 @@
     </div>
     <button class="btn btn-success" type="Submit">Submit</button>
 </form>
+
+@section scripts{
+    <script>
+        let $form = $('form');
+        $form.submit((e) => {
+            e.preventDefault();
+
+            let student = {};
+            let formData = $form.serializeArray();
+            for (var i = 0; i < formData.length; i++) {
+                student[formData[i].name] = formData[i].value;
+            }
+
+            console.log(student);
+
+            $.ajax({
+                url: '/api/Student',
+                method: 'POST',
+                data: JSON.stringify(student),
+                contentType: 'application/json',
+                dataType: 'json',
+                cache: false,
+            }).done((data) => {
+                console.log(data, data.Success, typeof(data.Success));
+                if (data.Success) {
+                    window.location.href = '/Student';
+                } else {
+                    $('#message').html('Failed to add ' + student.FullName + '. Reason: ' + data.Message);
+                }
+
+            });
+        });
+    </script>
+}

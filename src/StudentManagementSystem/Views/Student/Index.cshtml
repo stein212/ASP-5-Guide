@@ -1,5 +1,4 @@
-﻿@using System.Diagnostics
-@using StudentManagementSystem.ViewModels.Student
+﻿@using StudentManagementSystem.ViewModels.Student
 @model List<StudentViewModel>
 
 @{
@@ -11,47 +10,126 @@
 </style>
 <div class="content">
     <div id="divMessage" class="text-danger">@ViewData["divMessage"]</div>
-    <form class="form-inline" asp-controller="Student" asp-action="Index" method="POST">
+    <a asp-controller="Student" asp-action="Add" class="btn btn-primary">Add Student</a>
+    <form class="form-inline" asp-controller="Student" asp-action="Index" method="post">
         <div class="form-group">
             <label for="search">Search:</label>
             <input id="search" name="search" class="form-control" type="text" placeholder="Search" />
             <button class="btn btn-default" type="submit">Search</button>
         </div>
     </form>
- 
-    <table id="students" class="table">
-        <caption>Students</caption>
-        <thead>
-            <tr>
-                <th>Full name</th>
-                <th>Email</th>
-                <th>Mobile contact</th>
-                <th>Date of birth</th>
-                <th>Course</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (StudentViewModel studentVM in Model)
-            {
+    <form id="delete" action="/Student/Delete" method="delete">
+        <table id="students" class="table">
+            <caption>Students</caption>
+            <thead>
                 <tr>
-                    <td>@studentVM.FullName</td>
-                    <td>@studentVM.Email</td>
-                    <td>@studentVM.MobileContact</td>
-                    <td>@studentVM.DateOfBirth.ToString("dd-MMM-yyyy")</td>
-                    <td>@studentVM.CourseAbbreviation</td>
+                    <th></th>
+                    <th>@Html.DisplayNameFor(x => x[0].FullName)</th>
+                    <th>@Html.DisplayNameFor(x => x[0].Email)</th>
+                    <th>@Html.DisplayNameFor(x => x[0].MobileContact)</th>
+                    <th>@Html.DisplayNameFor(x => x[0].DateOfBirth)</th>
+                    <th>@Html.DisplayNameFor(x => x[0].CourseAbbreviation)</th>
+                    <th>Actions</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @*@foreach (StudentViewModel student in Model)
+                {
+                    <tr>
+                        <td><input type="checkbox" name="checkedId" value="@student.StudentId" form="delete" /></td>
+                        <td>@student.FullName</td>
+                        <td>@student.Email</td>
+                        <td>@student.MobileContact</td>
+                        <td>@student.DateOfBirth.ToString("dd-MMM-yyyy")</td>
+                        <td>@student.CourseAbbreviation</td>
+                        <td><a asp-controller="Student" asp-action="Edit" asp-route-id="@student.StudentId" class="btn btn-default btn-sm">Edit</a></td>
+                    </tr>
+                }*@
+            </tbody>
+        </table>
+        <button class="btn btn-danger" type="submit">Delete</button>
+    </form>
 </div>
 
 @section scripts {
     <script>
-        $("#students > tbody > tr").each(function(i) {
-            var dob = this.cells[3].innerHTML;
-            var year = +dob.split("-")[2]; //OR parseInt(dob.split("-")[2])
-            console.log(year);
-            if (year == 1999) $(this).addClass("highlight");
+
+        //Call the api and populate the table with the returned data
+        loadTable();
+
+        //Wire up the delete form on submit event
+        let $deleteForm = $('#delete');
+        $('#delete').submit((e) => {
+            e.preventDefault();
+
+            let data = [];
+
+            let deleteFormData = $deleteForm.serializeArray();
+            for (var i = 0; i < deleteFormData.length; i++) {
+                if (deleteFormData[i].name === 'checkedId')
+                    data.push(deleteFormData[i].value);
+            }
+
+            $.ajax({
+                type: $deleteForm.attr('method'),
+                url: '/api/Student',
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+            }).done((data) => {
+                $('#students > tbody > tr').remove();
+                console.log(data);
+                $('#divMessage').html('Deleted: ' + data.deleted + ', Not deleted: ' + data.notDeleted);
+                loadTable();
+            });
         });
+
+        function loadTable() {
+            $.when(
+                $.ajax({
+                    url: '/api/Student',
+                    method: 'GET',
+                    dataType: 'json',
+                    cache: false,
+                }),
+                $.ajax({
+                    url: '/api/Course',
+                    method: 'GET',
+                    dataType: 'json',
+                    cache: false,
+                })
+            ).done((studentData, courseData) => {
+                console.log(studentData, courseData);
+                let students = studentData[0],
+                    courses = courseData[0];
+                //Add CourseAbbreviation the student objects
+                for (let i = 0; i < students.length; i++) {
+                    let courseId = students[i].CourseId;
+                    for (let j = 0; j < courses.length; j++) {
+                        if (courseId === courses[j].CourseId) {
+                            students[i].CourseAbbreviation = courses[j].CourseAbbreviation;
+                            break;
+                        }
+                    }
+                }
+
+                //Create the body of the student table
+                for (let i = 0; i < students.length; i++) {
+                    $tableBody = $('#students tbody');
+                    $row = $('<tr/>');
+
+                    //Format the date
+                    students[i].DateOfBirth = formatDate(students[i].DateOfBirth);
+
+                    $row.append($('<td><input type="checkbox" name="checkedId" value="' + students[i].StudentId + '" form="delete" /></td>'))
+                        .append($('<td>' + students[i].FullName + '</td>'))
+                        .append($('<td>' + students[i].Email + '</td>'))
+                        .append($('<td>' + students[i].MobileContact + '</td>'))
+                        .append($('<td>' + students[i].DateOfBirth + '</td>'))
+                        .append($('<td>' + students[i].CourseAbbreviation + '</td>'))
+                        .append($('<td><a class="btn btn-default btn-sm" href="/Student/Edit/' + students[i].StudentId + '">Edit</a></td>'));
+                    $tableBody.append($row);
+                }
+            });
+        }
     </script>
 }

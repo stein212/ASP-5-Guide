@@ -32,6 +32,7 @@ namespace StudentManagementSystem
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<MyOptions>(Configuration);
+
             // Add framework services.
             services.AddMvc();
         }
