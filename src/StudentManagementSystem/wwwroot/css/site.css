@@ -41,3 +41,24 @@ textarea {
 .highlight {
     background-color: yellow;
 }
+
+/* file input */
+
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-height: 100%;
+    min-width: 100%;
+    font-size: 100px;
+    opacity: 0;
+    cursor: inherit;
+}
+
+.input-group {
+    max-width: 280px;
+}

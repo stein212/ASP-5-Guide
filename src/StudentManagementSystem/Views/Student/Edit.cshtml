@@ -50,7 +50,8 @@
             e.preventDefault();
 
             let student = {};
-            student.StudentId = studentId;
+            
+        student.StudentId = studentId;
             let formData = $form.serializeArray();
             for (var i = 0; i < formData.length; i++) {
                 student[formData[i].name] = formData[i].value;

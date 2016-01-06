@@ -6,6 +6,9 @@ using Microsoft.AspNet.Mvc;
 using Microsoft.Extensions.OptionsModel;
 using StudentManagementSystem.Models;
 using StudentManagementSystem.ViewModels.Student;
+using Microsoft.AspNet.Http;
+using Microsoft.Net.Http.Headers;
+using System.IO;
 
 // For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -154,5 +157,48 @@ namespace StudentManagementSystem.Controllers
             return RedirectToAction("Index");
         }
 
+        [HttpGet]
+        public IActionResult Upload()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Upload(string fileName, IFormFile file)
+        {
+            //This will get you the file path on the user's computer or a fakepath
+            //string filepath = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName;
+
+            Models.File fileToUpload = new Models.File();
+            fileToUpload.FileName = fileName;
+            fileToUpload.ContentType = file.ContentType;
+
+            Stream stream = file.OpenReadStream();
+            BinaryReader br = new BinaryReader(stream);
+
+            byte[] buffer = new byte[16 * 1024];
+            using (MemoryStream ms = new MemoryStream())
+            {
+                int read;
+                while ((read = br.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    ms.Write(buffer, 0, read);
+                }
+                fileToUpload.Blob = ms.ToArray();
+            }
+
+            new FileContext(_options.Value.ConnectionString).AddFile(fileToUpload);
+
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult File(int id)
+        {
+            Models.File file = new FileContext(_options.Value.ConnectionString).GetFile(id);
+            Stream stream = new MemoryStream(file.Blob);
+
+            return File(stream, file.ContentType);
+        }
     }
 }
